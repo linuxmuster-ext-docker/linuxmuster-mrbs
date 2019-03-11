@@ -11,11 +11,6 @@ import getopt
 import os
 import sys
 import re
-import secrets
-import string
-
-# Alphabet for password generation
-alphabet = string.ascii_letters + string.digits
 
 def usage():
     print('Usage: turnkey [options]')
@@ -100,13 +95,12 @@ def turnkey():
         ldapserver = setup.get('setup', 'ldapserver')
         basedn = setup.get('setup', 'basedn')
         schoolname = setup.get('setup', 'schoolname')
+        mysqlrootpw = setup.get('setup', 'mysqlrootpw')
+        mysqlmrbspw = setup.get('setup', 'mysqlmrbspw')
     except:
         print ('*** Error reading config file.')
         return 1
 
-    print('Generating passwords... ' )
-    dbrootpw = ''.join(secrets.choice(alphabet) for i in range(20))
-    dbmrbspw = ''.join(secrets.choice(alphabet) for i in range(20))
 
     turnthekey = True
     if os.path.isfile("./config/" + containername + ".inc.php"):
@@ -135,14 +129,14 @@ def turnkey():
         content = content.replace('@@LDAPSERVER@@', ldapserver)
         content = content.replace('@@BASEDN@@', basedn)
         content = content.replace('@@SCHOOLNAME@@', schoolname)
-        content = content.replace('@@MRBS_DB_PASSWORD@@', dbmrbspw)
-        content = content.replace('@@DB_ROOT_PW@@', dbrootpw)
+        content = content.replace('@@MRBS_DB_PASSWORD@@', mysqlmrbspw)
+        content = content.replace('@@DB_ROOT_PW@@', mysqlrootpw)
         content = content.replace('@@CONTAINERNAME@@', containername)
         # extract oufile path from first line
         # and remove first line
         firstline = re.findall(r'# .*\n', content)[0]
         outfile = firstline.partition(' ')[2].replace('\n', '')
-        re.sub(r'# .*\n',content,"")
+        content = content.split("\n",1)[1];
         print(" Infile: " + infile + " -> " + outfile) 
         # write outfile
         if not writeTextfile(outfile, content, 'w'):
