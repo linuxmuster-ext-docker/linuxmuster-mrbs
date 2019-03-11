@@ -1,0 +1,160 @@
+#!/usr/bin/python3
+#
+# turnkey for mrbs docker app
+# frank@linuxmuster.net
+# 20180209
+#
+
+import configparser
+import datetime
+import getopt
+import os
+import sys
+import re
+import secrets
+import string
+
+# Alphabet for password generation
+alphabet = string.ascii_letters + string.digits
+
+def usage():
+    print('Usage: turnkey [options]')
+    print(' [options] may be:')
+    print(' -c <file>, --config=<file> : path to ini file with setup values')
+    print(' -h,        --help          : print this help')
+
+# get cli args
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "c:hr", ["config=", "help"])
+except getopt.GetoptError as err:
+    # print help information and exit:
+    print(err) # will print something like "option -a not recognized"
+    usage()
+    sys.exit(2)
+
+# default values
+config = None
+tpldir = "./deploy/templates"
+
+# evaluate options
+for o, a in opts:
+    if o in ("-c", "--config"):
+        if os.path.isfile(a):
+            config = a
+        else:
+            usage()
+            sys.exit()
+    elif o in ("-h", "--help"):
+        usage()
+        sys.exit()
+    else:
+        assert False, "unhandled option"
+
+if (config == None):
+    usage()
+    sys.exit()
+
+## functions start
+# print without linefeed
+def printr(msg):
+    print(msg, end='', flush=True)
+
+# return datetime string
+def dtStr():
+    return "{:%Y%m%d%H%M%S}".format(datetime.datetime.now())
+
+# return content of text file
+def readTextfile(tfile):
+    if not os.path.isfile(tfile):
+        return False, None
+    try:
+        infile = open(tfile , 'r')
+        content = infile.read()
+        infile.close()
+        return True, content
+    except:
+        print('Cannot read ' + tfile + '!')
+        return False, None
+
+# write textfile
+def writeTextfile(tfile, content, flag):
+    try:
+        outfile = open(tfile, flag)
+        outfile.write(content)
+        outfile.close()
+        return True
+    except:
+        print('Failed to write ' + tfile + '!')
+        return False
+
+# create config from ini
+def turnkey():
+    # read ini file
+
+    try:
+        print('Reading setup data ...')
+        setup = configparser.ConfigParser(inline_comment_prefixes=('#', ';'))
+        setup.read(config)
+        containername = setup.get('setup', 'containername')
+        lmnversion = setup.get('setup', 'lmnversion')
+        ldapserver = setup.get('setup', 'ldapserver')
+        basedn = setup.get('setup', 'basedn')
+        schoolname = setup.get('setup', 'schoolname')
+    except:
+        print ('*** Error reading config file.')
+        return 1
+
+    print('Generating passwords... ' )
+    dbrootpw = ''.join(secrets.choice(alphabet) for i in range(20))
+    dbmrbspw = ''.join(secrets.choice(alphabet) for i in range(20))
+
+    turnthekey = True
+    if os.path.isfile("./config/" + containername + ".inc.php"):
+        print("*** Configuration for containername " + containername + " exists!")
+        turnthekey = False
+    if os.path.isfile("./docker-compose.yml"):
+        print("docker-compose.yml exists!")
+        turnthekey = False
+
+    if not turnthekey:
+        print("*** Exit: Not overwriting existing configuration.")
+        return 1
+
+    
+
+    # create docker configuration
+    print('Creating initial configuration from templates.')
+    for f in os.listdir(tpldir):
+        infile = tpldir + '/' + f
+        # read template
+        rc, content = readTextfile(infile)
+        if not rc:
+            return 1
+
+        # replace placeholders
+        content = content.replace('@@LDAPSERVER@@', ldapserver)
+        content = content.replace('@@BASEDN@@', basedn)
+        content = content.replace('@@SCHOOLNAME@@', schoolname)
+        content = content.replace('@@MRBS_DB_PASSWORD@@', dbmrbspw)
+        content = content.replace('@@DB_ROOT_PW@@', dbrootpw)
+        content = content.replace('@@CONTAINERNAME@@', containername)
+        # extract oufile path from first line
+        # and remove first line
+        firstline = re.findall(r'# .*\n', content)[0]
+        outfile = firstline.partition(' ')[2].replace('\n', '')
+        re.sub(r'# .*\n',content,"")
+        print(" Infile: " + infile + " -> " + outfile) 
+        # write outfile
+        if not writeTextfile(outfile, content, 'w'):
+            return 1
+    return 0
+## functions end
+
+rc = turnkey()
+
+if rc == 0:
+    print('\nScript finished successfully!')
+else:
+    print('\nScript finished with error!')
+
+sys.exit(rc)

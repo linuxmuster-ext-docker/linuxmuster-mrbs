@@ -1,0 +1,29 @@
+# ./docker-compose.yml
+version: '2'
+services:
+  db:
+    container_name: mariadb
+    restart: always
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: @@DB_ROOT_PW@@
+    volumes:
+      - ./mariadb-data:/var/lib/mysql
+  mrbs1:
+    depends_on:
+      - db
+    container_name: @@CONTAINERNAME@@
+    restart: always
+    image: linuxmuster/mrbs:latest
+    environment:
+        MRBS_DB_HOST: db
+        MRBS_DB_PORT: 3306
+        MRBS_DB_USER: mrbsdbuser
+        MRBS_DB_PASSWORD: @@MRBS_DB_PASSWORD@@
+        MRBS_DB_NAME: @@CONTAINERNAME@@
+        MYSQL_ROOT_PASSWORD: @@DB_ROOT_PW@@
+    ports:
+      - "8889:80"
+    volumes:
+      - ./config/raumbuchung.inc.php:/var/www/html/config.inc.php
+      - ./dbdumps/:/var/linuxmuster-mrbs
