@@ -14,3 +14,5 @@ TESTVERSION - **NICHT PRODUKTIV VERWENDEN**
 * Passe die Werte in der Datei ``mrbs.ini`` an.
 * Erzeuge eine Konfiguration mit: ``./deploy/bin/turnkey -c mrbs.ini``
 * Starte die App mit dem Befehl ``docker-compose up -d``
+
+Die Testversion öffnet auf den Docker-Host den Port 8889, du solltest dein MRBS jetzt also unter http://<deine_ip_oder_hostname>:8889 erreichen können.
