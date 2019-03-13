@@ -16,38 +16,12 @@ def usage():
     print('Usage: turnkey [options]')
     print(' [options] may be:')
     print(' -c <file>, --config=<file> : path to ini file with setup values')
+    print(' -r <file>, --reconfigure=<file> : path to ini file with setup values')
     print(' -h,        --help          : print this help')
-
-# get cli args
-try:
-    opts, args = getopt.getopt(sys.argv[1:], "c:hr", ["config=", "help"])
-except getopt.GetoptError as err:
-    # print help information and exit:
-    print(err) # will print something like "option -a not recognized"
-    usage()
-    sys.exit(2)
 
 # default values
 config = None
 tpldir = "./deploy/templates"
-
-# evaluate options
-for o, a in opts:
-    if o in ("-c", "--config"):
-        if os.path.isfile(a):
-            config = a
-        else:
-            usage()
-            sys.exit()
-    elif o in ("-h", "--help"):
-        usage()
-        sys.exit()
-    else:
-        assert False, "unhandled option"
-
-if (config == None):
-    usage()
-    sys.exit()
 
 ## functions start
 # print without linefeed
@@ -81,6 +55,46 @@ def writeTextfile(tfile, content, flag):
     except:
         print('Failed to write ' + tfile + '!')
         return False
+
+def yes_no(answer):
+    yes = set(['yes','y', 'ye'])
+    no = set(['no','n'])
+     
+    while True:
+        choice = input(answer).lower()
+        if choice in yes:
+           return True
+        elif choice in no:
+           return False
+        else:
+           print("Please respond with 'yes' or 'no'")
+
+# Delete configuration without db data
+def confDelete():
+    print("This action deletes your config files an recreates them.")
+    print("  * All changes you made in your configs will be LOST!")
+    print("  * Your MRBS Data in your databases willnot be touched, as")
+    print("    long as you do not change the database releated values")
+    print("    in your ini-file")
+    print("")
+    doit=yes_no("Do you really want to continue?")
+    if (doit):
+        for f in os.listdir("./config"):
+            try:
+                os.remove("./config/"+f)
+            except OSError:
+                pass
+        try: 
+            os.remove("docker-compose.yml")
+        except OSError:
+            pass
+            
+    else: 
+        print("Aborting.");
+        sys.exit()
+
+
+    
 
 # create config from ini
 def turnkey():
@@ -147,10 +161,50 @@ def turnkey():
         # write outfile
         if not writeTextfile(outfile, content, 'w'):
             return 1
+
+    # linking nginx config
+    try:
+        os.remove("/etc/nginx/sites-enabled/"+servicehost+"."+servicedomain)
+    except OSError:
+        pass
+    os.symlink(os.getcwd()+"/config/nginx."+servicehost+".conf","/etc/nginx/sites-enabled/"+servicehost+"."+servicedomain)
+    os.system("/etc/init.d/nginx restart")
+
     return 0
 ## functions end
 
-rc = turnkey()
+# get cli args
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "c:r:hr", ["config=", "reconfigure=", "help"])
+except getopt.GetoptError as err:
+    # print help information and exit:
+    print(err) # will print something like "option -a not recognized"
+    usage()
+    sys.exit(2)
+
+# evaluate options
+for o, a in opts:
+    if o in ("-c", "--config"):
+        if os.path.isfile(a):
+            config = a
+            rc = turnkey()
+        else:
+            usage()
+            sys.exit()
+    elif o in ("-r", "--reconfigure"):
+        config = a
+        confDelete()
+        rc=turnkey()
+    elif o in ("-h", "--help"):
+        usage()
+        sys.exit()
+    else:
+        assert False, "unhandled option"
+
+if (config == None):
+    usage()
+    sys.exit()
+
 
 if rc == 0:
     print('\nScript finished successfully!')
