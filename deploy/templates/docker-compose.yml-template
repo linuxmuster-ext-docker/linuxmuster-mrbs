@@ -23,7 +23,7 @@ services:
         MRBS_DB_NAME: mrbs_@@CONTAINERNAME@@
         MYSQL_ROOT_PASSWORD: @@DB_ROOT_PW@@
     ports:
-      - "8889:80"
+      - "127.0.0.1:@@LOCALPORT@@:80"
     volumes:
       - ./config/@@CONTAINERNAME@@.inc.php:/var/www/html/config.inc.php
       - ./dbdumps/:/var/linuxmuster-mrbs

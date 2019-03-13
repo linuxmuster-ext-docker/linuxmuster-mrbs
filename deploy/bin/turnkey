@@ -97,6 +97,9 @@ def turnkey():
         schoolname = setup.get('setup', 'schoolname')
         mysqlrootpw = setup.get('setup', 'mysqlrootpw')
         mysqlmrbspw = setup.get('setup', 'mysqlmrbspw')
+        servicedomain = setup.get('setup', 'servicedomain')
+        servicehost = setup.get('setup', 'servicehost')
+        localport = setup.get('setup', 'localport')
     except:
         print ('*** Error reading config file.')
         return 1
@@ -132,6 +135,9 @@ def turnkey():
         content = content.replace('@@MRBS_DB_PASSWORD@@', mysqlmrbspw)
         content = content.replace('@@DB_ROOT_PW@@', mysqlrootpw)
         content = content.replace('@@CONTAINERNAME@@', containername)
+        content = content.replace('@@SERVICEHOST@@', servicehost)
+        content = content.replace('@@SERVICEDOMAIN@@', servicedomain)
+        content = content.replace('@@LOCALPORT@@', localport)
         # extract oufile path from first line
         # and remove first line
         firstline = re.findall(r'# .*\n', content)[0]
