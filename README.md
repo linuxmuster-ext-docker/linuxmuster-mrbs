@@ -26,8 +26,6 @@ Zuerst musst du dir Dienstenamen ausdenken und SSL-Zertifikat besorgen. Also z.B
 * Erzeuge eine Konfiguration mit: ``./deploy/bin/turnkey -c mrbs.ini``
 * Starte die App mit dem Befehl ``docker-compose up -d``
 
-Jetzt solltest du dich an deinem MRBS unter der Adresse 
-
-https://mrbs.meine-schule.de/ anmelden können, so wie du deinen Service-Host und deine Service-Domain konfiguriert hast.
+Jetzt solltest du dich an deinem MRBS unter der Adresse https://mrbs.meine-schule.de/ anmelden können, so wie du deinen Service-Host und deine Service-Domain konfiguriert hast.
 
 
