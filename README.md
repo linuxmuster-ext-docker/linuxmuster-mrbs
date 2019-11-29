@@ -20,7 +20,7 @@ Zuerst musst du dir Dienstenamen ausdenken und SSL-Zertifikat besorgen. Also z.B
 
 * Klone dieses Repo auf deinen Dockerhost nach ``/srv/docker``
   * ``cd /srv/docker``
-  * ``git clone https://github.com/jolly-jump/linuxmuster-mrbs``
+  * ``git clone https://github.com/linuxmuster-ext-docker/linuxmuster-mrbs``
 * Wechsle in das App-Verzeichnis: ``cd linuxmuster-mrbs``
 * Passe die Werte in der Datei ``mrbs.ini`` an.
 * Erzeuge eine Konfiguration mit: ``./deploy/bin/turnkey -c mrbs.ini``
