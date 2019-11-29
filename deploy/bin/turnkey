@@ -108,6 +108,8 @@ def turnkey():
         lmnversion = setup.get('setup', 'lmnversion')
         ldapserver = setup.get('setup', 'ldapserver')
         basedn = setup.get('setup', 'basedn')
+        binduser = setup.get('setup', 'binduser')
+        bindpw = setup.get('setup', 'bindpw')
         schoolname = setup.get('setup', 'schoolname')
         mysqlrootpw = setup.get('setup', 'mysqlrootpw')
         mysqlmrbspw = setup.get('setup', 'mysqlmrbspw')
@@ -145,6 +147,8 @@ def turnkey():
         # replace placeholders
         content = content.replace('@@LDAPSERVER@@', ldapserver)
         content = content.replace('@@BASEDN@@', basedn)
+        content = content.replace('@@BINDUSER@@', binduser)
+        content = content.replace('@@BINDPASSWORD@@', bindpw)
         content = content.replace('@@SCHOOLNAME@@', schoolname)
         content = content.replace('@@MRBS_DB_PASSWORD@@', mysqlmrbspw)
         content = content.replace('@@DB_ROOT_PW@@', mysqlrootpw)

@@ -75,9 +75,9 @@ $db_tbl_prefix = "mrbs_";
 $db_persist = false;
 
 
-// LDAP auth für linuxmuster62 mit einem Workaround, so
+// LDAP auth für linuxmuster7 mit einem Workaround, so
 // dass man den Zugang auf Gruppen einschränken kann
-$auth["type"] = "linuxmuster62"; 
+$auth["type"] = "linuxmuster7"; 
 
 // LDAP Server
 // $ldap_host = "ldaps://servername:636";
@@ -89,16 +89,12 @@ $ldap_host = "ldaps://@@LDAPSERVER@@:636";
 // Wenn alle Benutzer zugang haben sollen, auskommentieren
 $ldap_lmn_accessgroups = array("teachers","p_mrbs");
 
-// Usertree: ou=accounts + , + basedn des LMN62 Servers
-// $ldap_base_dn = "ou=accounts,dc=linuxmuster,dc=lokal";
-$ldap_base_dn = "ou=accounts,@@BASEDN@@";
-
-// User Attribut, für lmn62 "uid"
-$ldap_user_attrib = "uid";
-
-// Grouptree: ou=groups + , + basedn des LMN62 Servers
-// $ldap_base_dn = "ou=igroups,dc=linuxmuster,dc=lokal";
-$ldap_lmn_groupdn = "ou=groups,@@BASEDN@@";
+// Usertree: sucht im basedn des LMN7 Servers
+// $ldap_base_dn = "dc=linuxmuster-net,dc=lokal";
+$ldap_base_dn = "@@BASEDN@@";
+$ldap_dn_search_dn = "@@BINDUSER@@";
+$ldap_dn_search_password = "@@BINDPASSWORD@@";
+$ldap_dn_search_attrib = "sAMAccountName";
 
 /* Add lines from systemdefaults.inc.php and areadefaults.inc.php below here
    to change the default configuration. Do _NOT_ modify systemdefaults.inc.php
@@ -186,7 +182,7 @@ $auth['deny_public_access'] = TRUE;
 $auth['show_bulk_delete'] = FALSE;
 
 unset($auth["admin"]);              // Include this when copying to config.inc.php
-$auth["admin"][] = "administrator";
+$auth["admin"][] = "global-admin";
 #$auth["admin"][] = "andererbenutzer";
 #$auth["admin"][] = "andererbenutzer";
 #$auth["admin"][] = "andererbenutzer";
@@ -227,7 +223,7 @@ $periods[] = "[10] 16:35-17:20";
 // 'auth_ldap' configuration settings
 // If you do not want to use LDAP v3, change the following to false.
 // This can be an array.
-$ldap_v3 = true;
+$ldap_v3 = false;
 
 // If you want to use TLS, change the following to true.
 // This can be an array.
