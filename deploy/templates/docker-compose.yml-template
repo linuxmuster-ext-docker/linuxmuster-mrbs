@@ -14,7 +14,7 @@ services:
       - db
     container_name: @@CONTAINERNAME@@
     restart: always
-    image: hgkvplan/linuxmuster-mrbs:latest
+    image: linuxmuster/mrbs:latest
     environment:
         MRBS_DB_HOST: db
         MRBS_DB_PORT: 3306
